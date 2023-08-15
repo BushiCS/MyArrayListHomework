@@ -18,8 +18,7 @@ import java.util.Arrays;
  * @author Yuriy Sviridov
  * @since 0.5
  */
-public class CustomArrayList<E extends Comparable<? super E>> {
-
+public class CustomArrayList<E> {
     /**
      * начальная емкость по умолчанию
      */
@@ -39,7 +38,7 @@ public class CustomArrayList<E extends Comparable<? super E>> {
      * Создает пустой список с начальной емкостью по умолчанию
      */
     public CustomArrayList() {
-        element_data = new Comparable[DEFAULT_CAPACITY];
+        element_data = new Object[DEFAULT_CAPACITY];
     }
 
     /**
@@ -52,14 +51,14 @@ public class CustomArrayList<E extends Comparable<? super E>> {
         if (capacity <= 0) {
             throw new IllegalArgumentException("incorrect capacity");
         } else {
-            element_data = new Comparable[capacity];
+            element_data = new Object[capacity];
         }
     }
 
     /**
      * @return настоящую емкость коллекции (фактический размер с учетом пустых ячеек)
      */
-    public int getCapacity (){
+    public int getCapacity() {
         return element_data.length;
     }
 
@@ -132,7 +131,6 @@ public class CustomArrayList<E extends Comparable<? super E>> {
     public void trimToSize() {
         if (size < element_data.length) {
             element_data = Arrays.copyOf(element_data, size);
-            System.out.println(size);
         }
     }
 
@@ -168,13 +166,14 @@ public class CustomArrayList<E extends Comparable<? super E>> {
 
     /**
      * Удаляет из этого списка все его элементы, содержащиеся в указанной коллекции.
+     *
      * @param c коллекция, содержащая элементы, которые нужно удалить из этого списка
-     * @return  {@code false} если ни один элемент из переданной коллекции не был найден и удален в искомой
+     * @return {@code false} если ни один элемент из переданной коллекции не был найден и удален в искомой
      */
 
     @SuppressWarnings("unchecked")
     public boolean removeAll(CustomArrayList<?> c) {
-        int removeCount=0;
+        int removeCount = 0;
         for (int i = 0; i < size; i++) {
             if (c.contains(element_data[i])) {
                 remove((E) element_data[i]);
@@ -244,8 +243,8 @@ public class CustomArrayList<E extends Comparable<? super E>> {
         // разделяем на подмассивы и меняем местами
         int i = first, j = last;
         while (i <= j) {
-            while (sortArr[i].compareTo(border) < 0) i++;
-            while (sortArr[j].compareTo(border) > 0) j--;
+            while (((Comparable<E>) sortArr[i]).compareTo(border) < 0) i++;
+            while (((Comparable<E>) sortArr[j]).compareTo(border) > 0) j--;
             if (i <= j) { // меняем местами
                 E swap = sortArr[i];
                 sortArr[i] = sortArr[j];
