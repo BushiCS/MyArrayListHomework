@@ -2,6 +2,7 @@ package ru.sviridov;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.stream.IntStream;
 
 /**
  * реализация изменяемого (динамического) массива
@@ -27,7 +28,7 @@ public class CustomArrayList<E> {
     /**
      * основной массив для хранения данных
      */
-    private Object[] element_data;
+    private Object[] elementData;
 
     /**
      * Размер списка ArrayList (количество содержащихся в нем элементов)
@@ -38,7 +39,7 @@ public class CustomArrayList<E> {
      * Создает пустой список с начальной емкостью по умолчанию
      */
     public CustomArrayList() {
-        element_data = new Object[DEFAULT_CAPACITY];
+        elementData = new Object[DEFAULT_CAPACITY];
     }
 
     /**
@@ -51,7 +52,7 @@ public class CustomArrayList<E> {
         if (capacity <= 0) {
             throw new IllegalArgumentException("incorrect capacity");
         } else {
-            element_data = new Object[capacity];
+            elementData = new Object[capacity];
         }
     }
 
@@ -59,7 +60,7 @@ public class CustomArrayList<E> {
      * @return настоящую емкость коллекции (фактический размер с учетом пустых ячеек)
      */
     public int getCapacity() {
-        return element_data.length;
+        return elementData.length;
     }
 
     /**
@@ -69,10 +70,10 @@ public class CustomArrayList<E> {
      * @param e входной элемент для добавления
      */
     public void add(E e) {
-        if (size == element_data.length - 1) {
-            element_data = grow();
+        if (size == elementData.length - 1) {
+            elementData = grow();
         }
-        element_data[size++] = e;
+        elementData[size++] = e;
     }
 
     /**
@@ -87,11 +88,11 @@ public class CustomArrayList<E> {
         if (index > size || index < 0) {
             throw new ArrayIndexOutOfBoundsException("index " + index + " out of bound " + size);
         }
-        if (size == (element_data.length - 1)) {
-            element_data = grow();
+        if (size == (elementData.length - 1)) {
+            elementData = grow();
         }
-        System.arraycopy(element_data, index, element_data, index + 1, (size++) - index);
-        element_data[index] = e;
+        System.arraycopy(elementData, index, elementData, index + 1, (size++) - index);
+        elementData[index] = e;
     }
 
     /**
@@ -106,7 +107,7 @@ public class CustomArrayList<E> {
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + size);
         }
-        return (E) element_data[index];
+        return (E) elementData[index];
     }
 
     /**
@@ -118,7 +119,7 @@ public class CustomArrayList<E> {
     public boolean remove(E e) {
         int pos = indexOf(e);
         if (pos >= 0) {
-            System.arraycopy(element_data, pos + 1, element_data, pos, size - pos);
+            System.arraycopy(elementData, pos + 1, elementData, pos, size - pos);
             size--;
             return true;
         }
@@ -129,8 +130,8 @@ public class CustomArrayList<E> {
      * Очищает пустые ячейки массива до фактического размера коллекции, для экономии памяти.
      */
     public void trimToSize() {
-        if (size < element_data.length) {
-            element_data = Arrays.copyOf(element_data, size);
+        if (size < elementData.length) {
+            elementData = Arrays.copyOf(elementData, size);
         }
     }
 
@@ -139,7 +140,7 @@ public class CustomArrayList<E> {
      */
     public void clear() {
         for (int i = 0; i < size; i++) {
-            element_data[i] = null;
+            elementData[i] = null;
         }
         size = 0;
     }
@@ -151,17 +152,7 @@ public class CustomArrayList<E> {
      * @return {@code int} индекс элемента
      */
     public int indexOf(Object e) {
-        int pos = -1;
-        for (int i = 0; i < size; i++) {
-            if (element_data[i] == null) {
-                break;
-            }
-            if (element_data[i].equals(e)) {
-                pos = i;
-                break;
-            }
-        }
-        return pos;
+        return IntStream.range(0, size).takeWhile(i -> elementData[i] != null).filter(i -> elementData[i].equals(e)).findFirst().orElse(-1);
     }
 
     /**
@@ -175,8 +166,8 @@ public class CustomArrayList<E> {
     public boolean removeAll(CustomArrayList<?> c) {
         int removeCount = 0;
         for (int i = 0; i < size; i++) {
-            if (c.contains(element_data[i])) {
-                remove((E) element_data[i]);
+            if (c.contains(elementData[i])) {
+                remove((E) elementData[i]);
                 i--;
                 removeCount++;
             }
@@ -209,8 +200,8 @@ public class CustomArrayList<E> {
      * @return {@code Object[]} увеличенный массив (коллекцию)
      */
     private Object[] grow() {
-        int growFactor = element_data.length + (size / 2);
-        return Arrays.copyOf(element_data, growFactor);
+        int growFactor = elementData.length + (size / 2);
+        return Arrays.copyOf(elementData, growFactor);
     }
 
     /**
@@ -219,7 +210,7 @@ public class CustomArrayList<E> {
      */
     @SuppressWarnings("unchecked")
     public void sort() {
-        quickSort((E[]) element_data, 0, size - 1);
+        quickSort((E[]) elementData, 0, size - 1);
     }
 
     /**
@@ -228,9 +219,8 @@ public class CustomArrayList<E> {
      * @param c входной компаратор для конкретной сортировки нужных данных
      */
     @SuppressWarnings("unchecked")
-    public void sort(Comparator c) {
-        //TODO разобраться с компаратором
-        quickSort(c, (E[]) element_data, 0, size - 1);
+    public void sort(Comparator<E> c) {
+        quickSort(c, (E[]) elementData, 0, size - 1);
     }
 
     /**
@@ -252,7 +242,8 @@ public class CustomArrayList<E> {
         E border = sortArr[middle];
 
         // разделяем на подмассивы и меняем местами
-        int i = first, j = last;
+        int i = first;
+        int j = last;
         while (i <= j) {
             while (((Comparable<E>) sortArr[i]).compareTo(border) < 0) i++;
             while (((Comparable<E>) sortArr[j]).compareTo(border) > 0) j--;
@@ -279,7 +270,7 @@ public class CustomArrayList<E> {
      * @param first   первый элемент коллекции
      * @param last    крайний элемент
      */
-    private void quickSort(Comparator c, E[] sortArr, int first, int last) {
+    private void quickSort(Comparator<E> c, E[] sortArr, int first, int last) {
         // завершаем, если массив пуст или уже нечего делить
         if (sortArr.length == 0 || first >= last) return;
 
@@ -288,7 +279,8 @@ public class CustomArrayList<E> {
         E border = sortArr[middle];
 
         // разделяем на подмассивы и меняем местами
-        int i = first, j = last;
+        int i = first;
+        int j = last;
         while (i <= j) {
             while (c.compare(sortArr[i], border) < 0) i++;
             while (c.compare(sortArr[j], border) > 0) j--;
@@ -307,6 +299,6 @@ public class CustomArrayList<E> {
 
     @Override
     public String toString() {
-        return Arrays.toString(Arrays.copyOf(element_data, size));
+        return Arrays.toString(Arrays.copyOf(elementData, size));
     }
 }
