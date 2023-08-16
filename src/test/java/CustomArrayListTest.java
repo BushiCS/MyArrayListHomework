@@ -157,9 +157,12 @@ public class CustomArrayListTest {
         list.add(leopard);
         String expectedBySpeed = MessageFormat.format("[{0}, {1}, {2}, {3}]", barsik, murka, leopard, gepard);
         String expectedByWeight = MessageFormat.format("[{0}, {1}, {2}, {3}]", murka, barsik, leopard, gepard);
+        String expectedByName = MessageFormat.format("[{0}, {1}, {2}, {3}]", barsik, gepard, leopard, murka);
         list.sort(Comparator.comparing(Cat::getMaxSpeed)); // по макс скорости
         Assertions.assertEquals(expectedBySpeed, list.toString());
         list.sort(Comparator.comparing(Cat::getWeight)); // по весу
         Assertions.assertEquals(expectedByWeight, list.toString());
+        list.sort(Comparator.comparing(Cat::getName));
+        Assertions.assertEquals(expectedByName, list.toString());
     }
 }
