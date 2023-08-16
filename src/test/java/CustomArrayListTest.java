@@ -1,7 +1,11 @@
+import ru.sviridov.Cat;
 import ru.sviridov.CustomArrayList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.text.MessageFormat;
+import java.util.Comparator;
 
 public class CustomArrayListTest {
 
@@ -137,5 +141,25 @@ public class CustomArrayListTest {
         testlist2.add(3);
         testlist2.sort();
         Assertions.assertEquals("[1, 2, 3, 4]", testlist2.toString());
+    }
+
+    @Test
+    @DisplayName("проверка сортировки с входным компаратором")
+    void sortWithComparatorTest() {
+        Cat barsik = new Cat("Барсик", 10, 20);
+        Cat murka = new Cat("Мурка", 6, 28);
+        Cat gepard = new Cat("Гепард", 50, 100);
+        Cat leopard = new Cat("Леопард", 31, 58);
+        CustomArrayList<Cat> list = new CustomArrayList<>();
+        list.add(barsik);
+        list.add(murka);
+        list.add(gepard);
+        list.add(leopard);
+        String expectedBySpeed = MessageFormat.format("[{0}, {1}, {2}, {3}]", barsik, murka, leopard, gepard);
+        String expectedByWeight = MessageFormat.format("[{0}, {1}, {2}, {3}]", murka, barsik, leopard, gepard);
+        list.sort(Comparator.comparing(Cat::getMaxSpeed)); // по макс скорости
+        Assertions.assertEquals(expectedBySpeed, list.toString());
+        list.sort(Comparator.comparing(Cat::getWeight)); // по весу
+        Assertions.assertEquals(expectedByWeight, list.toString());
     }
 }

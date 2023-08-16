@@ -1,6 +1,7 @@
 package ru.sviridov;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * реализация изменяемого (динамического) массива
@@ -12,6 +13,7 @@ import java.util.Arrays;
  * <p><strong>Обратите внимание, что эта реализация не синхронизирована.</strong></p>
  * Если несколько потоков одновременно обращаются к экземпляру ArrayList и по крайней мере один из потоков изменяет список структурно,
  * он должен быть синхронизирован извне.
+ *
  * @param <E>
  * @author Yuriy Sviridov
  * @since 0.5
@@ -221,6 +223,17 @@ public class CustomArrayList<E> {
     }
 
     /**
+     * Публичный вспомогательный метод для сортировки с компаратором.
+     * (при необходимости можно указать другой вид сортировки).
+     * @param c входной компаратор для конкретной сортировки нужных данных
+     */
+    @SuppressWarnings("unchecked")
+    public void sort(Comparator c) {
+        //TODO разобраться с компаратором
+        quickSort(c, (E[]) element_data, 0, size - 1);
+    }
+
+    /**
      * Метод сортировки посредством алгоритма быстрой сортировки.
      * Достигается путем выбора опорного элемента и сортировки соседних, а также с помощью рекурсии.
      * В теле метода описаны важные этапы
@@ -255,7 +268,42 @@ public class CustomArrayList<E> {
         if (first < j) quickSort(sortArr, first, j);
         if (last > i) quickSort(sortArr, i, last);
     }
+    /**
+     * Метод сортировки посредством алгоритма быстрой сортировки
+     * Достигается путем выбора опорного элемента и сортировки соседних, а также с помощью рекурсии.
+     * В теле метода описаны важные этапы
+     * Сложность алгоритма составляет: худшая = O(n^2), средняя = O(n log(n)).
+     * <p>Компаратор определяет - по каким параметрам нужно сортировать.
+     * @param c входной компаратор
+     * @param sortArr сортируемый массив
+     * @param first   первый элемент коллекции
+     * @param last    крайний элемент
+     */
+    private void quickSort(Comparator c, E[] sortArr, int first, int last) {
+        // завершаем, если массив пуст или уже нечего делить
+        if (sortArr.length == 0 || first >= last) return;
 
+        // выбираем опорный элемент
+        int middle = first + (last - first) / 2;
+        E border = sortArr[middle];
+
+        // разделяем на подмассивы и меняем местами
+        int i = first, j = last;
+        while (i <= j) {
+            while (c.compare(sortArr[i], border) < 0) i++;
+            while (c.compare(sortArr[j], border) > 0) j--;
+            if (i <= j) { // меняем местами
+                E swap = sortArr[i];
+                sortArr[i] = sortArr[j];
+                sortArr[j] = swap;
+                i++;
+                j--;
+            }
+        }
+        // рекурсия для сортировки левой и правой частей
+        if (first < j) quickSort(c, sortArr, first, j);
+        if (last > i) quickSort(c, sortArr, i, last);
+    }
 
     @Override
     public String toString() {
